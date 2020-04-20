@@ -1,0 +1,1 @@
+INSERT INTO payments (trxnref,senderid,receiverid,amount,currency,narration) VALUES( '748474AA', '8030909029', '0110092345', 800000, 'NGN', 'NOTHING');
