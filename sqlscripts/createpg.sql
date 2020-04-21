@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS payments;
 CREATE TABLE payments
 (
   id SERIAL PRIMARY KEY,
-  trxnref character varying(50) DEFAULT NULL,
+  trxnref character varying(50) UNIQUE DEFAULT NULL,
   senderid character varying(20) DEFAULT NULL,
   receiverid character varying(20) DEFAULT NULL,
   amount integer DEFAULT NULL,

@@ -2,7 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"dendrix.io/nayalabs/reportserver/models"
@@ -16,14 +20,18 @@ type payment struct {
 }
 
 var (
-	encoder  utils.Encoder
-	decoder  utils.Decoder
-	timeUtil utils.TimeService
+	jsonEncoder    utils.Encoder
+	jsonDecoder    utils.Decoder
+	timeUtil       utils.TimeService
+	gocsvEncoder   utils.Encoder
+	csvutilEncoder utils.Encoder
 )
 
 func init() {
-	encoder = utils.NewJSONEncoder()
-	decoder = utils.NewJSONDecoder()
+	jsonEncoder = utils.NewJSONEncoder()
+	jsonDecoder = utils.NewJSONDecoder()
+	gocsvEncoder = utils.NewGoCSVEncoder()
+	csvutilEncoder = utils.NewCSVUtilEncoder()
 	timeUtil = utils.NewTimeService()
 }
 
@@ -42,8 +50,7 @@ func (p *payment) registerRoutes(basePath string, r *mux.Router) {
 	r.HandleFunc(sb.String(), p.createHandler).Methods("POST")
 	paymentRoute := r.PathPrefix(sb.String()).Subrouter()
 	paymentRoute.HandleFunc(fmt.Sprintf("/{%s}", pathParam), p.getByIDHandler).Methods("GET")
-	//r.HandleFunc(sb.String(), p.getAllHandler).Methods("GET")
-	//r.HandleFunc(sb.String()+fmt.Sprintf("/{%s}", pathParam), p.getPathTextHandler).Methods("GET")
+	paymentRoute.HandleFunc("/filetype/csv", p.getAllCSVHandler).Methods("GET")
 }
 
 func (p *payment) registerServices(data services.IDataService) {
@@ -56,12 +63,39 @@ func (p *payment) getAllHandler(w http.ResponseWriter, r *http.Request) {
 		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
 		w.Write([]byte(errMsg))
 	} else {
-		err0 := encoder.Encode(w, payments)
+		err0 := jsonEncoder.Encode(w, payments)
 		if err0 != nil {
 			errMsg := fmt.Sprintf("{ error: %s }", err0.Error())
 			w.Write([]byte(errMsg))
 		}
 	}
+}
+
+func (p *payment) getAllCSVHandler(w http.ResponseWriter, r *http.Request) {
+	filename, err := p.PaymentService.GetAllCSV(r.Context())
+	if err != nil {
+		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
+		log.Fatal(errMsg)
+	}
+	file, err := os.Open(filename)
+	if err != nil {
+		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
+		log.Fatal(errMsg)
+	}
+	fileInfo, err := file.Stat()
+	if err != nil {
+		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
+		log.Fatal(errMsg)
+	}
+
+	FileSize := strconv.FormatInt(fileInfo.Size(), 10)
+	//Send the headers before sending the file
+	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Length", FileSize)
+
+	//Send the file
+	io.Copy(w, file)
 }
 
 func (p *payment) getByIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +105,7 @@ func (p *payment) getByIDHandler(w http.ResponseWriter, r *http.Request) {
 		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
 		w.Write([]byte(errMsg))
 	} else {
-		err0 := encoder.Encode(w, payment)
+		err0 := jsonEncoder.Encode(w, payment)
 		if err0 != nil {
 			errMsg := fmt.Sprintf("{ error: %s }", err0.Error())
 			w.Write([]byte(errMsg))
@@ -81,7 +115,7 @@ func (p *payment) getByIDHandler(w http.ResponseWriter, r *http.Request) {
 
 func (p *payment) createHandler(w http.ResponseWriter, r *http.Request) {
 	var in models.Payment
-	if err := decoder.Decode(r.Body, &in); err != nil {
+	if err := jsonDecoder.Decode(r.Body, &in); err != nil {
 		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
 		w.Write([]byte(errMsg))
 	}
@@ -92,7 +126,7 @@ func (p *payment) createHandler(w http.ResponseWriter, r *http.Request) {
 		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
 		w.Write([]byte(errMsg))
 	} else {
-		err0 := encoder.Encode(w, payment)
+		err0 := jsonEncoder.Encode(w, payment)
 		if err0 != nil {
 			errMsg := fmt.Sprintf("{ error: %s }", err0.Error())
 			w.Write([]byte(errMsg))

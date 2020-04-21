@@ -2,9 +2,13 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"strconv"
+	"time"
 
 	"dendrix.io/nayalabs/reportserver/models"
 	"dendrix.io/nayalabs/reportserver/services"
@@ -132,4 +136,61 @@ func (repo *paymentRepository) GetAll(params string) (interface{}, error) {
 		log.Println(err)
 	}
 	return payments, nil
+}
+
+func (repo *paymentRepository) GetAllCSV() (interface{}, error) {
+	var filePath string
+	query := "SELECT id, trxnref, senderid, receiverid, amount, currency, narration, createdon FROM payments"
+	rows, err := repo.tx.Query(query)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	//Get Write to CSV file
+	staticDir := os.Getenv("STATIC_FILEPATH")
+	filePath = path.Join(staticDir, "payments_report.csv")
+	csvFile, err := os.Create(filePath)
+	if err != nil {
+		return nil, err
+	}
+	csvWriter := csv.NewWriter(csvFile)
+	if werr := csvWriter.Write([]string{"id", "trxnref", "senderid", "receiverid", "amount", "currency", "narration", "createdon"}); werr != nil {
+		return nil, werr
+	}
+	for rows.Next() {
+		var (
+			id         string
+			trxnRef    string
+			senderID   string
+			receiverID string
+			amount     string
+			currency   string
+			narration  string
+			createdOn  *time.Time
+		)
+		if err := rows.Scan(&id, &trxnRef, &senderID, &receiverID, &amount, &currency, &narration, &createdOn); err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		if werr := csvWriter.Write([]string{id, trxnRef, senderID, receiverID, amount, currency, narration, createdOn.String()}); werr != nil {
+			return nil, werr
+		}
+	}
+	// If the database is being written to ensure to check for Close
+	// errors that may be returned from the driver. The query may
+	// encounter an auto-commit error and be forced to rollback changes.
+	rerr := rows.Close()
+	if rerr != nil {
+		log.Fatal(rerr)
+	}
+	// Rows.Err will report the last error encountered by Rows.Scan.
+	if err := rows.Err(); err != nil {
+		log.Println("Last known error in Rows scan...")
+		log.Println(err)
+	}
+	csvWriter.Flush()
+	defer csvFile.Close()
+	defer rows.Close()
+	return filePath, nil
 }

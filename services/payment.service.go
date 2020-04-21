@@ -7,10 +7,12 @@ import (
 	"dendrix.io/nayalabs/reportserver/models"
 )
 
+//PaymentService implements the payment service functions
 type PaymentService interface {
 	GetAll(ctx context.Context) ([]*models.Payment, error)
 	GetByID(ctx context.Context, trxnRef string) (*models.Payment, error)
 	Create(ctx context.Context, p models.Payment) (*models.Payment, error)
+	GetAllCSV(ctx context.Context) (string, error)
 }
 
 type paymentServiceImpl struct {
@@ -27,11 +29,11 @@ func (srv *paymentServiceImpl) GetAll(ctx context.Context) ([]*models.Payment, e
 		log.Printf("%v", err)
 		return nil, err
 	}
-	if err := srv.IDataService.Commit(); err != nil {
+	/* 	if err := srv.IDataService.Commit(); err != nil {
 		log.Println("Commit error occurred:- ")
 		log.Printf("%v", err)
 		return nil, err
-	}
+	} */
 	response := out.([]*models.Payment)
 	return response, nil
 }
@@ -46,11 +48,11 @@ func (srv *paymentServiceImpl) GetByID(ctx context.Context, id string) (*models.
 		log.Printf("%v", err)
 		return nil, err
 	}
-	if err := srv.IDataService.Commit(); err != nil {
+	/* 	if err := srv.IDataService.Commit(); err != nil {
 		log.Println("Commit error occurred:- ")
 		log.Printf("%v", err)
 		return nil, err
-	}
+	} */
 	response := out.(*models.Payment)
 	return response, nil
 }
@@ -71,6 +73,25 @@ func (srv *paymentServiceImpl) Create(ctx context.Context, p models.Payment) (*m
 		return nil, err
 	}
 	response := out.(*models.Payment)
+	return response, nil
+}
+
+func (srv *paymentServiceImpl) GetAllCSV(ctx context.Context) (string, error) {
+	log.Println("Called PaymentService.GetAllCSV() function")
+	srv.IDataService.BeginTx()
+	log.Println("Called IDataService.BeginTx() function")
+	out, err := srv.IDataService.GetAllCSV()
+	if err != nil {
+		log.Println("GetAllCSV error occurred:- ")
+		log.Printf("%v", err)
+		return "", err
+	}
+	/* 	if err := srv.IDataService.Commit(); err != nil {
+		log.Println("Commit error occurred:- ")
+		log.Printf("%v", err)
+		return nil, err
+	} */
+	response := out.(string)
 	return response, nil
 }
 
