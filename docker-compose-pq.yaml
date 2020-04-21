@@ -1,17 +1,5 @@
 version: "3.7"
 
-x-hosts:
-  &hosts
-    #ORG1
-    - peer0.org1.example.com:172.20.10.3
-    - peer1.org1.example.com:172.20.10.3
-    - ca.org1.example.com:172.20.10.3
-    - orderer.example.com:172.20.10.3
-    #ORG2
-    - peer0.org2.example.com:172.20.10.3
-    - peer1.org2.example.com:172.20.10.3
-    - ca.org2.example.com:172.20.10.3
-
 networks:
   pq_net:
 
@@ -33,6 +21,5 @@ services:
       - ./sqlscripts:/scripts
       - pgdata:/var/lib/postgresql/data
     #command: psql -U $POSTGRES_USER -v dbname=$DATABASE -v user=$USER -v passwd=$PASSWD -f /scripts/createpg.sql;
-    extra_hosts: *hosts
 volumes:
   pgdata:
