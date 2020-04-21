@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"dendrix.io/nayalabs/reportserver/api/internal/middlewares"
@@ -21,4 +23,10 @@ func StartUp(data services.IDataService) http.Handler {
 	paymentController.registerServices(data)
 	rtr.Use(middlewares.LoggingMw)
 	return rtr
+}
+
+func handleError(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusBadRequest)
+	log.Println(err)
+	fmt.Fprintf(w, err.Error())
 }

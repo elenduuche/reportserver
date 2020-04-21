@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -61,13 +60,12 @@ func (p *payment) registerServices(data services.IDataService) {
 func (p *payment) getAllHandler(w http.ResponseWriter, r *http.Request) {
 	payments, err := p.PaymentService.GetAll(r.Context())
 	if err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		w.Write([]byte(errMsg))
+		handleError(w, err)
 	} else {
+		w.Header().Set("Content-Type", "application/json")
 		err0 := jsonEncoder.Encode(w, payments)
 		if err0 != nil {
-			errMsg := fmt.Sprintf("{ error: %s }", err0.Error())
-			w.Write([]byte(errMsg))
+			handleError(w, err0)
 		}
 	}
 }
@@ -76,22 +74,19 @@ func (p *payment) getAllCSVHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	month, cerr := strconv.Atoi(params["month"])
 	if cerr != nil {
-		log.Fatal(cerr)
+		handleError(w, cerr)
 	}
 	filename, err := p.PaymentService.GetAllCSV(r.Context(), month, timeUtil.Now().Year())
 	if err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		log.Fatal(errMsg)
+		handleError(w, err)
 	}
 	file, err := os.Open(filename)
 	if err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		log.Fatal(errMsg)
+		handleError(w, err)
 	}
 	fileInfo, err := file.Stat()
 	if err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		log.Fatal(errMsg)
+		handleError(w, err)
 	}
 
 	FileSize := strconv.FormatInt(fileInfo.Size(), 10)
@@ -110,13 +105,11 @@ func (p *payment) getByIDHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	payment, err := p.PaymentService.GetByID(r.Context(), params[pathParam])
 	if err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		w.Write([]byte(errMsg))
+		handleError(w, err)
 	} else {
 		err0 := jsonEncoder.Encode(w, payment)
 		if err0 != nil {
-			errMsg := fmt.Sprintf("{ error: %s }", err0.Error())
-			w.Write([]byte(errMsg))
+			handleError(w, err)
 		}
 	}
 }
@@ -124,20 +117,17 @@ func (p *payment) getByIDHandler(w http.ResponseWriter, r *http.Request) {
 func (p *payment) createHandler(w http.ResponseWriter, r *http.Request) {
 	var in models.Payment
 	if err := jsonDecoder.Decode(r.Body, &in); err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		w.Write([]byte(errMsg))
+		handleError(w, err)
 	}
 	t := timeUtil.Now()
 	in.CreatedOn = &t
 	payment, err := p.PaymentService.Create(r.Context(), in)
 	if err != nil {
-		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
-		w.Write([]byte(errMsg))
+		handleError(w, err)
 	} else {
 		err0 := jsonEncoder.Encode(w, payment)
 		if err0 != nil {
-			errMsg := fmt.Sprintf("{ error: %s }", err0.Error())
-			w.Write([]byte(errMsg))
+			handleError(w, err)
 		}
 	}
 }
