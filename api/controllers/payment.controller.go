@@ -92,7 +92,7 @@ func (p *payment) getAllCSVHandler(w http.ResponseWriter, r *http.Request) {
 	FileSize := strconv.FormatInt(fileInfo.Size(), 10)
 	//Send the headers before sending the file
 	m := time.Month(month)
-	downloadFilename := fmt.Sprintf("payments_%v_%v.csv", m.String(), timeUtil.NowTimestamp().Seconds)
+	downloadFilename := strings.ToLower(fmt.Sprintf("payments_%v_%v.csv", m.String(), timeUtil.NowTimestamp().Seconds))
 	w.Header().Set("Content-Disposition", "attachment; filename="+downloadFilename)
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Length", FileSize)
