@@ -98,7 +98,7 @@ func (repo *paymentRepository) GetById(id string) (interface{}, error) {
 	response := new(models.Payment)
 	query := "SELECT id, trxnref, senderid, receiverid, amount, currency, narration, createdon FROM payments WHERE id=$1"
 	//idx, _ := strconv.Atoi(id)
-	err := repo.tx.QueryRow(query, id).Scan(&response.ID, &response.TrxnRef, &response.SenderID, &response.ReceiverID,
+	err := db.QueryRow(query, id).Scan(&response.ID, &response.TrxnRef, &response.SenderID, &response.ReceiverID,
 		&response.Amount, &response.Currency, &response.Narration, &response.CreatedOn)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (repo *paymentRepository) GetById(id string) (interface{}, error) {
 func (repo *paymentRepository) GetAll(params string) (interface{}, error) {
 	var payments []*models.Payment
 	query := "SELECT id, trxnref, senderid, receiverid, amount, currency, narration, createdon FROM payments"
-	rows, err := repo.tx.Query(query)
+	rows, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -138,10 +138,14 @@ func (repo *paymentRepository) GetAll(params string) (interface{}, error) {
 	return payments, nil
 }
 
-func (repo *paymentRepository) GetAllCSV() (interface{}, error) {
+func (repo *paymentRepository) GetAllCSV(month int, year int) (interface{}, error) {
 	var filePath string
-	query := "SELECT id, trxnref, senderid, receiverid, amount, currency, narration, createdon FROM payments"
-	rows, err := repo.tx.Query(query)
+	//query := "SELECT id, trxnref, senderid, receiverid, amount, currency, narration, createdon FROM payments"
+	query := `SELECT id, trxnref, senderid, receiverid, amount, currency, narration, createdon
+	FROM payments
+	WHERE (extract (month FROM createdon) = $1)
+	AND (extract (year from createdon) = $2);`
+	rows, err := db.Query(query, month, year)
 	if err != nil {
 		log.Println(err)
 		return nil, err

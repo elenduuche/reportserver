@@ -9,5 +9,5 @@ type IDataService interface {
 	Update(id string, request interface{}) (interface{}, error)
 	GetById(id string) (interface{}, error)
 	GetAll(params string) (interface{}, error)
-	GetAllCSV() (interface{}, error)
+	GetAllCSV(month int, year int) (interface{}, error)
 }

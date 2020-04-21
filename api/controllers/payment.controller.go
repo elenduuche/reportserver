@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"dendrix.io/nayalabs/reportserver/models"
 	"dendrix.io/nayalabs/reportserver/services"
@@ -50,7 +51,7 @@ func (p *payment) registerRoutes(basePath string, r *mux.Router) {
 	r.HandleFunc(sb.String(), p.createHandler).Methods("POST")
 	paymentRoute := r.PathPrefix(sb.String()).Subrouter()
 	paymentRoute.HandleFunc(fmt.Sprintf("/{%s}", pathParam), p.getByIDHandler).Methods("GET")
-	paymentRoute.HandleFunc("/filetype/csv", p.getAllCSVHandler).Methods("GET")
+	paymentRoute.HandleFunc("/month/{month}", p.getAllCSVHandler).Methods("GET")
 }
 
 func (p *payment) registerServices(data services.IDataService) {
@@ -72,7 +73,12 @@ func (p *payment) getAllHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *payment) getAllCSVHandler(w http.ResponseWriter, r *http.Request) {
-	filename, err := p.PaymentService.GetAllCSV(r.Context())
+	params := mux.Vars(r)
+	month, cerr := strconv.Atoi(params["month"])
+	if cerr != nil {
+		log.Fatal(cerr)
+	}
+	filename, err := p.PaymentService.GetAllCSV(r.Context(), month, timeUtil.Now().Year())
 	if err != nil {
 		errMsg := fmt.Sprintf("{ error: %s }", err.Error())
 		log.Fatal(errMsg)
@@ -90,7 +96,9 @@ func (p *payment) getAllCSVHandler(w http.ResponseWriter, r *http.Request) {
 
 	FileSize := strconv.FormatInt(fileInfo.Size(), 10)
 	//Send the headers before sending the file
-	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
+	m := time.Month(month)
+	downloadFilename := fmt.Sprintf("payments_%v_%v.csv", m.String(), timeUtil.NowTimestamp().Seconds)
+	w.Header().Set("Content-Disposition", "attachment; filename="+downloadFilename)
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Length", FileSize)
 
