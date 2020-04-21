@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"dendrix.io/nayalabs/reportserver/logging"
-	"dendrix.io/nayalabs/reportserver/utils"
+	"github.com/elenduuche/reportserver/logging"
+	"github.com/elenduuche/reportserver/utils"
 )
 
 var logger logging.Logger

@@ -9,9 +9,9 @@ import (
 	"os/signal"
 	"strconv"
 
-	"dendrix.io/nayalabs/reportserver/api/controllers"
-	"dendrix.io/nayalabs/reportserver/database"
-	"dendrix.io/nayalabs/reportserver/repository"
+	"github.com/elenduuche/reportserver/api/controllers"
+	"github.com/elenduuche/reportserver/database"
+	"github.com/elenduuche/reportserver/repository"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )

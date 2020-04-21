@@ -1,4 +1,4 @@
-module dendrix.io/nayalabs/reportserver
+module github.com/elenduuche/reportserver
 
 go 1.14
 

@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"dendrix.io/nayalabs/reportserver/api/internal/middlewares"
-	"dendrix.io/nayalabs/reportserver/services"
+	"github.com/elenduuche/reportserver/api/internal/middlewares"
+	"github.com/elenduuche/reportserver/services"
 	"github.com/gorilla/mux"
 )
 

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"dendrix.io/nayalabs/reportserver/models"
-	"dendrix.io/nayalabs/reportserver/services"
-	"dendrix.io/nayalabs/reportserver/utils"
+	"github.com/elenduuche/reportserver/models"
+	"github.com/elenduuche/reportserver/services"
+	"github.com/elenduuche/reportserver/utils"
 	"github.com/gorilla/mux"
 )
 

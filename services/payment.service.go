@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"dendrix.io/nayalabs/reportserver/models"
+	"github.com/elenduuche/reportserver/models"
 )
 
 //PaymentService implements the payment service functions

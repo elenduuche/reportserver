@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"dendrix.io/nayalabs/reportserver/models"
-	"dendrix.io/nayalabs/reportserver/services"
+	"github.com/elenduuche/reportserver/models"
+	"github.com/elenduuche/reportserver/services"
 )
 
 type paymentRepository struct {
