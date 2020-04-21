@@ -1,0 +1,110 @@
+{
+	"info": {
+		"_postman_id": "db9b0a42-fa13-43eb-9674-3156f2446b86",
+		"name": "Nayalabs Ex",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Payment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"trxnRef\":\"1234430000\",\n\t\"senderId\":\"08028909802\",\n\t\"receiverId\": \"0118928934\",\n\t\"amount\":10400000,\n\t\"currency\": \"USD\",\n\t\"narration\": \"USD transaction\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/v1/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"payments"
+					]
+				},
+				"description": "Create payment transaction"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Payment",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/payments/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"payments",
+						"1"
+					]
+				},
+				"description": "Create payment transaction"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Payments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"payments"
+					]
+				},
+				"description": "Create payment transaction"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Payments CSV",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/payments/filetype/csv",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"payments",
+						"filetype",
+						"csv"
+					]
+				},
+				"description": "Create payment transaction"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

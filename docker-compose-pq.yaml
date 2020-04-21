@@ -5,7 +5,7 @@ networks:
 
 services:
   postgresql.db:
-    image: postgres:latest
+    image: postgres:11.2
     networks:
       - pq_net
     container_name: postgresql.db
